@@ -5,8 +5,18 @@ import (
 	"github.com/pfirulo2022/go-blog/database"
 )
 
-func main() {
+func init() {
 	database.ConnectDB() // Connect to the database
+}
+
+func main() {
+
+	sqlDb, err := database.DBConn.DB()
+	if err != nil {
+		panic(err)
+	}
+
+	defer sqlDb.Close()
 
 	app := fiber.New()
 	app.Get("/", func(c *fiber.Ctx) error {

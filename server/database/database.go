@@ -3,6 +3,7 @@ package database
 import (
 	"log"
 
+	"github.com/pfirulo2022/go-blog/model"
 	"gorm.io/driver/mysql"
 	"gorm.io/gorm"
 	"gorm.io/gorm/logger"
@@ -20,6 +21,10 @@ func ConnectDB() {
 		panic(err)
 	}
 	log.Println("Conectado correctamente")
+
+	if err := db.AutoMigrate(new(model.Blog)); err != nil {
+		log.Fatalf("Error during migration: %v", err)
+	}
 	DBConn = db
 
 }
