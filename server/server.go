@@ -2,7 +2,9 @@ package main
 
 import (
 	"github.com/gofiber/fiber/v2"
+	"github.com/gofiber/fiber/v2/middleware/logger"
 	"github.com/pfirulo2022/go-blog/database"
+	"github.com/pfirulo2022/go-blog/router"
 )
 
 func init() {
@@ -19,9 +21,10 @@ func main() {
 	defer sqlDb.Close()
 
 	app := fiber.New()
-	app.Get("/", func(c *fiber.Ctx) error {
-		return c.JSON(fiber.Map{"message": "Bienvenido a mi web"})
-	})
+
+	app.Use(logger.New())
+
+	router.SetupRoutes(app)
 
 	app.Listen(":8000")
 
