@@ -8,6 +8,35 @@ import (
 	"github.com/pfirulo2022/go-blog/model"
 )
 
+func BlogDetail(c *fiber.Ctx) error {
+	c.Status(400)
+	context := fiber.Map{
+		"statusText": "",
+		"msg":        "",
+	}
+
+	id := c.Params("id")
+
+	var record model.Blog
+
+	database.DBConn.First(&record, id)
+
+	if record.ID == 0 {
+		log.Println("Record not Found.")
+		context["msg"] = "Record not Found."
+
+		c.Status(404)
+		return c.JSON(context)
+	}
+
+	context["record"] = record
+	context["statusText"] = "Ok"
+	context["msg"] = "Blog Detail"
+	c.Status(200)
+	return c.JSON(context)
+
+}
+
 func BlogList(c *fiber.Ctx) error {
 	context := fiber.Map{
 		"statusText": "Ok",
