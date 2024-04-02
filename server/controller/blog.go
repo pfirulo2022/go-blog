@@ -2,12 +2,38 @@ package controller
 
 import (
 	"log"
+	"os"
+	"time"
 
 	"github.com/gofiber/fiber/v2"
 	"github.com/pfirulo2022/go-blog/database"
 	"github.com/pfirulo2022/go-blog/model"
 )
 
+// Blog list
+func BlogList(c *fiber.Ctx) error {
+
+	context := fiber.Map{
+		"statusText": "Ok",
+		"msg":        "Blog List",
+	}
+
+	// Sleep to add some delay in API response
+	time.Sleep(time.Millisecond * 1500)
+
+	db := database.DBConn
+
+	var records []model.Blog
+
+	db.Find(&records)
+
+	context["blog_records"] = records
+
+	c.Status(200)
+	return c.JSON(context)
+}
+
+// Blog detail page
 func BlogDetail(c *fiber.Ctx) error {
 	c.Status(400)
 	context := fiber.Map{
@@ -34,26 +60,9 @@ func BlogDetail(c *fiber.Ctx) error {
 	context["msg"] = "Blog Detail"
 	c.Status(200)
 	return c.JSON(context)
-
 }
 
-func BlogList(c *fiber.Ctx) error {
-	context := fiber.Map{
-		"statusText": "Ok",
-		"msg":        "Blog List",
-	}
-	db := database.DBConn
-
-	var records []model.Blog
-
-	db.Find(&records)
-
-	context["blog_records"] = records
-
-	c.Status(200)
-	return c.JSON(context)
-}
-
+// Add a Blog into Database
 func BlogCreate(c *fiber.Ctx) error {
 	context := fiber.Map{
 		"statusText": "Ok",
@@ -61,27 +70,47 @@ func BlogCreate(c *fiber.Ctx) error {
 	}
 
 	record := new(model.Blog)
-	if err := c.BodyParser(&record); err != nil {
+
+	if err := c.BodyParser(record); err != nil {
 		log.Println("Error in parsing request.")
 		context["statusText"] = ""
-		context["msg"] = "Algo salio mal."
+		context["msg"] = "Something went wrong."
+	}
+
+	// File upload
+	file, err := c.FormFile("file")
+
+	if err != nil {
+		log.Println("Error in file upload.", err)
+	}
+
+	if file.Size > 0 {
+		filename := "./static/uploads/" + file.Filename
+
+		if err := c.SaveFile(file, filename); err != nil {
+			log.Println("Error in file uploading...", err)
+		}
+
+		// Set image path to the struct
+		record.Image = filename
 	}
 
 	result := database.DBConn.Create(record)
+
 	if result.Error != nil {
-		log.Println("Error al guardar los datos.")
+		log.Println("Error in saving data.")
 		context["statusText"] = ""
-		context["msg"] = "Hubo un error."
+		context["msg"] = "Something went wrong."
 	}
 
-	context["msg"] = "Guardado correctamente."
+	context["msg"] = "Record is saved successully."
 	context["data"] = record
 
 	c.Status(201)
 	return c.JSON(context)
-
 }
 
+// Update  a Blog
 func BlogUpdate(c *fiber.Ctx) error {
 
 	context := fiber.Map{
@@ -113,6 +142,23 @@ func BlogUpdate(c *fiber.Ctx) error {
 		c.Status(400)
 		return c.JSON(context)
 	}
+	// File upload
+	file, err := c.FormFile("file")
+
+	if err != nil {
+		log.Println("Error in file upload.", err)
+	}
+
+	if file.Size > 0 {
+		filename := "static/uploads/" + file.Filename
+
+		if err := c.SaveFile(file, filename); err != nil {
+			log.Println("Error in file uploading...", err)
+		}
+
+		// Set image path to the struct
+		record.Image = filename
+	}
 
 	result := database.DBConn.Save(record)
 
@@ -131,10 +177,10 @@ func BlogUpdate(c *fiber.Ctx) error {
 	return c.JSON(context)
 }
 
+// Delete a Blog
 func BlogDelete(c *fiber.Ctx) error {
 
 	c.Status(400)
-
 	context := fiber.Map{
 		"statusText": "",
 		"msg":        "",
@@ -147,19 +193,29 @@ func BlogDelete(c *fiber.Ctx) error {
 	database.DBConn.First(&record, id)
 
 	if record.ID == 0 {
-		log.Println("No se encontro el registro.")
-		context["msg"] = "No blog found with the provided ID."
+		log.Println("Record not Found.")
+		context["msg"] = "Record not Found."
+
 		return c.JSON(context)
 	}
+
+	// Remove image
+	filename := record.Image
+
+	err := os.Remove(filename)
+	if err != nil {
+		log.Println("Error in deleting file.", err)
+	}
+
 	result := database.DBConn.Delete(record)
+
 	if result.Error != nil {
-		context["msg"] = "Algo salio mal."
+		context["msg"] = "Something went wrong."
 		return c.JSON(context)
 	}
 
-	context["statusText"] = "ok"
+	context["statusText"] = "Ok"
 	context["msg"] = "Record deleted successfully."
-
 	c.Status(200)
 	return c.JSON(context)
 }

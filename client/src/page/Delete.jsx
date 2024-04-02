@@ -8,7 +8,7 @@ const Delete = () => {
 
   const handleDelete = async () => {
     try {
-      const apiUrl = import.meta.env.VITE_API_ROOT + params.id;
+      const apiUrl = import.meta.env.VITE_API_ROOT +"/"+ params.id;
 
       const response = await axios.delete(apiUrl);
 

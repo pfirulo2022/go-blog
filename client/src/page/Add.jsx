@@ -32,7 +32,7 @@ const Add = () => {
       });
 
       if (response.status === 201) {
-        console.log(response);
+         
         navigate("/");
       }
 

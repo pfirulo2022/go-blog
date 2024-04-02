@@ -32,7 +32,8 @@ func main() {
 
 	app.Use(cors.New(cors.Config{
 		AllowOrigins: "*",
-		AllowHeaders: "application/json; charset=utf-8",
+
+		AllowHeaders: "application/json, Origin, Content-Type, Accept",
 	}))
 
 	app.Use(logger.New())
