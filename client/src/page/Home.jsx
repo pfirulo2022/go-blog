@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { Link } from "react-router-dom";
 import { Col, Container, Row } from 'react-bootstrap';
+import Spinner from 'react-bootstrap/Spinner';
 import axios from 'axios';
 
 import './../App.css';
@@ -9,25 +10,26 @@ import './../App.css';
 function Home() {
 
     const [apiData, setApiData] = useState(false);
+    const [loading, setLoading] = useState(true);
 
     useEffect(() => {
 
         const fetchData = async () => {
 
             try {
-
                 const instance = import.meta.env.VITE_API_ROOT;
+                const response = await axios.get(instance);
 
-
-                const response = await axios.get(instance)
                 if (response.status === 200) {
 
                     if (response?.data.statusText === "Ok") {
                         setApiData(response?.data.blog_records)
                     }
                 }
+                setLoading(false);
 
             } catch (error) {
+                setLoading(false);
                 console.log("Errorrrrrrr");
             }
         }
@@ -36,11 +38,23 @@ function Home() {
         return () => { };
     }, []);
 
+    if (loading) {
+        return (
+            <>
+                <Container className='spinner'>
+                    <Spinner animation="border" role="status">
+                        <span className="visually-hidden">Loading...</span>
+                    </Spinner>
+                </Container>
+            </>
+        )
+    }
+
     return (
-        <Container className="py-2">
+        <Container className="py-4">
             <Row>
                 <h3>
-                    <Link to="add" className="btn btn-primary">
+                    <Link to="Add" className="btn btn-primary">
                         Add New
                     </Link>
                 </h3>

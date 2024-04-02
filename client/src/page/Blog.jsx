@@ -1,3 +1,4 @@
+/* eslint-disable react-hooks/exhaustive-deps */
 import axios from "axios";
 import { useState, useEffect} from "react";
 import { Container,Row, Col } from "react-bootstrap";
@@ -34,7 +35,7 @@ function Blog() {
         fetchData();
         return () => { };
  
-    }, [params]);
+    }, []);
 
     return (
         <Container>
