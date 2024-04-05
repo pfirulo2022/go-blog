@@ -147,9 +147,7 @@ func BlogUpdate(c *fiber.Ctx) error {
 
 	if err != nil {
 		log.Println("Error in file upload.", err)
-	}
-
-	if file.Size > 0 {
+	} else if file.Size > 0 {
 		filename := "static/uploads/" + file.Filename
 
 		if err := c.SaveFile(file, filename); err != nil {

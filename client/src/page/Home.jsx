@@ -6,28 +6,22 @@ import axios from 'axios';
 
 import './../App.css';
 
-
 function Home() {
-
     const [apiData, setApiData] = useState(false);
     const [loading, setLoading] = useState(true);
 
     useEffect(() => {
-
         const fetchData = async () => {
-
             try {
                 const instance = import.meta.env.VITE_API_ROOT;
                 const response = await axios.get(instance);
 
                 if (response.status === 200) {
-
                     if (response?.data.statusText === "Ok") {
                         setApiData(response?.data.blog_records)
                     }
                 }
                 setLoading(false);
-
             } catch (error) {
                 setLoading(false);
                 console.log("Errorrrrrrr");
@@ -62,27 +56,32 @@ function Home() {
                 <h5>{location.state && location.state}</h5>
 
                 {apiData &&
-                    apiData.map((record, index) => (
-                        <Col key={index} xs="3" className="py-2 box">
-                            <div className="img-box justify-content-center py-2 mb-3">
-                                <img width="150" height="150" src={`${import.meta.env.VITE_API_ROOT}/${record.image}`} />
-                            </div>
-                            <div className="title">
-                                <Link to={`blog/${record.id}`}> {record.title}</Link>
-                            </div>
+                    apiData.map((record, index) => {
+                        // Remove a specific part from the image path
+                        const imagePath = record.image.replace('part_to_remove', ''); // Replace 'part_to_remove' with the part you want to remove
 
-                            <div>
-                                <Link to={`edit/${record.id}`}>
-                                    <i className="fa fa-solid fa-pencil fa-1x" />
-                                </Link>
-                                &nbsp;
-                                <Link to={`delete/${record.id}`}>
-                                    <i className="fa fa-solid fa-trash fa-1x" />
-                                </Link>
-                            </div>
-                            <div>{record.post}</div>
-                        </Col>
-                    ))}
+                        return (
+                            <Col key={index} xs="3" className="py-2 box">
+                                <div className="img-box justify-content-center py-2 mb-3">
+                                    <img width="150" height="150" src={`${import.meta.env.VITE_API_ROOT}/${imagePath}`} />
+                                </div>
+                                <div className="title">
+                                    <Link to={`blog/${record.id}`}> {record.title}</Link>
+                                </div>
+
+                                <div>
+                                    <Link to={`edit/${record.id}`}>
+                                        <i className="fa fa-solid fa-pencil fa-1x" />
+                                    </Link>
+                                    &nbsp;
+                                    <Link to={`delete/${record.id}`}>
+                                        <i className="fa fa-solid fa-trash fa-1x" />
+                                    </Link>
+                                </div>
+                                <div>{record.post}</div>
+                            </Col>
+                        );
+                    })}
             </Row>
         </Container>
     );
